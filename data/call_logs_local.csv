@@ -24,3 +24,13 @@ test_happy_path_001,2026-11-21T06:00:00Z,Aarav Sharma,N/A,verified,Documents Nee
 01a1fdeb-7afd-7001-bc6f-df2b661f0e0d,2026-11-21T11:44:23.840789+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
 01a1fdec-d9cc-7000-85c5-3527e1f2cf2a,2026-11-21T11:45:53.923881+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
 01a1fdf6-8571-7338-ad93-e550e3a9b9f4,2026-11-21T11:59:26.973218+00:00,Aarav Sharma,3210,verified,Documents Needed,YES,YES,NO,N/A,Neutral,Caller: Aarav Sharma. Auth: verified. CRITICAL: Active emergency reported; caller directed to 112.,customer-ended-call
+01a1fe7b-7e9a-7002-b9d0-9b98c7a9c874,2026-11-21T14:21:27.279692+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,call.in-progress.error-assistant-did-not-receive-customer-audio
+01a1fe7c-0c20-7002-a6dd-02ea8d0df6c4,2026-11-21T14:24:11.346326+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
+01a1fe7e-6031-7338-bf13-2fde03b04095,2026-11-21T14:25:02.372043+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
+01a1fe80-a37c-7002-83a1-7b2c229646a3,2026-11-21T14:27:18.812449+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
+01a1fe82-9cbe-7002-8e27-6e45c5f7432f,2026-11-21T14:29:28.190328+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
+01a1fe85-3cd5-7338-bfe5-8833802e0002,2026-11-21T14:32:05.531663+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
+01a1fea1-eff5-7000-827a-02dca8d2cc5b,2026-11-21T15:03:41.028618+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
+01a1fea2-aece-7002-aab3-05650aedb754,2026-11-21T15:04:30.125964+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
+01a1fea9-8817-7000-9b8a-1d958b46092a,2026-11-21T15:14:33.892821+00:00,Sneha Rao,9876,locked,N/A,YES,NO,NO,N/A,Neutral,Caller: Sneha Rao. Auth: locked. Escalated: Transferred to human support.,customer-ended-call
+01a1feac-bda9-733f-9392-e1b17dda7d0d,2026-11-21T15:18:29.577808+00:00,Unverified Caller,N/A,not_started,N/A,YES,NO,NO,N/A,Neutral,Caller: Unverified. Auth: not_started. Escalated: Transferred to human support.,customer-ended-call
