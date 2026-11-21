@@ -131,6 +131,15 @@ Completed calls are logged into [`data/call_logs_local.csv`](data/call_logs_loca
 
 ---
 
+## 📚 Comprehensive System Design & Interview Preparation
+
+For deep architectural details, state machines, and complete interview defense questions required by the Observe.AI assessment, consult:
+
+* 📘 **[SYSTEM_DESIGN_AND_INTERVIEW_GUIDE.md](SYSTEM_DESIGN_AND_INTERVIEW_GUIDE.md)**: Master System Design, Finite State Machine, Database Schemas, WebRTC audio drift telemetry, Production Scaling (10k concurrent calls), and Interview Defense.
+* 🌐 **[INTERVIEW_STUDY_GUIDE.html](INTERVIEW_STUDY_GUIDE.html)**: Interactive, printable dark-themed interview study guide with visual Mermaid flow diagrams and quick-reference interview soundbites.
+
+---
+
 ## 📁 Project Structure
 
 ```
