@@ -417,12 +417,43 @@ flowchart TD
   <div class="card">
     <h3>Complete Fallback Architecture:</h3>
     <ul>
-      <li><strong>Airtable Down / Timeout (3s/5s):</strong> Agent catches timeout, apologizes, and offers human representative.</li>
+      <li><strong>Airtable Down / Timeout (3s/5s):</strong> Agent catches timeout, apologizes, and offers human representative. Live queries use <code>max_records=1</code> and in-memory RAM cache pre-warming (<code>_warm_cache()</code>) for &lt;1ms voice response.</li>
       <li><strong>Auth Lockout (3 wrong PINs):</strong> Session locks, zero claim data disclosed, transferred to rep.</li>
-      <li><strong>Web Browser Audio Call:</strong> WebRTC cannot do PSTN phone transfer $\rightarrow$ schedules explicit callback ticket.</li>
+      <li><strong>Web Browser Audio Call:</strong> WebRTC cannot do PSTN phone transfer &rarr; schedules explicit callback ticket.</li>
       <li><strong>Google Sheets Down:</strong> Automatically writes to local CSV Dead-Letter Queue (<code>data/call_logs_local.csv</code>). Reconciled via <code>sync_offline_logs.py</code>.</li>
       <li><strong>Physical Emergency:</strong> Immediate triage to <code>112</code> (India) or <code>911</code>, halting claim conversation.</li>
     </ul>
+  </div>
+
+  <div class="card" style="border-left: 4px solid var(--accent-orange);">
+    <h3>Real-World WebRTC Voice Debugging: Diagnosing &amp; Fixing the 30-Second Audio Drop</h3>
+    <p>During live testing via Vapi's web "Talk" widget (Daily.co WebRTC transport), calls frequently dropped at exactly <strong>~29.2 &ndash; 29.4 seconds</strong> with <code>customer-ended-call</code>. Here is how we isolated and resolved it:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Symptom &amp; Log Signal</th>
+          <th>Root Cause Analysis</th>
+          <th>Production Engineering Fix</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Call terminates at 29.3s with <code>customer-ended-call</code></td>
+          <td><strong>Browser Extension / Cached Worker:</strong> Ad-blockers, privacy extensions, or stale WebRTC audio workers terminate unacknowledged media streams at 30 seconds.</td>
+          <td><strong>Incognito / Isolated Context:</strong> Launch web call in a fresh Chrome Incognito window without third-party extensions. Verified calls last 3.5+ minutes (208s+).</td>
+        </tr>
+        <tr>
+          <td><code>call.driftDetected</code> on <code>toDenoiserSocket</code> &amp; <code>fromDenoiserSocket</code> (262ms vs 20ms)</td>
+          <td><strong>Background Tab Throttling:</strong> Chrome aggressively deprioritizes audio timers (WebAudio/requestAnimationFrame) when switching windows or minimizing tabs.</td>
+          <td><strong>Active Window Focus:</strong> Keep the call tab active in the foreground, or deploy via dedicated desktop/PSTN SIP trunking.</td>
+        </tr>
+        <tr>
+          <td>Router UDP NAT drop at 30s</td>
+          <td><strong>SIP ALG / UDP Timeout:</strong> Office/home ISP routers drop unrefreshed UDP bindings after 30 seconds if STUN keep-alives are delayed.</td>
+          <td><strong>Protocol Fallback:</strong> Switch to mobile hotspot or force TCP/HTTP2 tunneling (<code>--protocol http2</code>).</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
   <h2>5. Top Interview Questions & Soundbites</h2>
@@ -450,6 +481,16 @@ flowchart TD
   <div class="qa-box">
     <div class="qa-question">Q5: Why did you build a single agent with backend tools instead of LangGraph / multi-agent swarm?</div>
     <div class="qa-answer">"Voice AI requires response latency under 800ms. Multi-agent swarms introduce severe inter-agent serialization overhead and multiple LLM inferences per turn. A single conversational agent with deterministic backend tools delivers sub-second latency, lower token burn, and a state machine that is auditable and easy to debug."</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-question">Q6: How did you debug and eliminate the WebRTC 30-second call drop during live testing?</div>
+    <div class="qa-answer">"By analyzing raw telemetry logs from Daily.co and Vapi, we detected <code>driftDetected</code> events on the audio pipeline (262ms jitter vs 20ms cadence) triggering <code>customer-ended-call</code> at 29.3 seconds. We identified two culprits: browser extension interference and Chrome background tab throttling. Testing in an isolated Chrome Incognito window while keeping the call tab in focus completely eliminated packet drift, enabling verified continuous conversations exceeding 3.5 minutes (208s)."</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-question">Q7: How did you structure tool webhook endpoints in Vapi for maintainability?</div>
+    <div class="qa-answer">"Instead of hardcoding webhook URLs into individual tool definitions, we leveraged Vapi's URL inheritance. By leaving tool-level <code>server</code> blocks unconfigured, all tools automatically dispatch to the Assistant's single <code>Advanced &rarr; Server URL</code> endpoint. This eliminated operational drift and manual rework across 5 different tools whenever backend tunnel endpoints changed."</div>
   </div>
 
 </div>
