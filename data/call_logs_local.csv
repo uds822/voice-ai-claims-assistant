@@ -1,0 +1,26 @@
+Call ID,Timestamp (UTC),Caller Name,Phone (Last 4),Auth Outcome,Claim Status,Escalated,Emergency,Callback Requested,Callback Phone,Sentiment,Summary,Ended Reason
+test_call_001,2026-11-21T01:00:00Z,Aarav Sharma,3210,verified,Documents Needed,NO,NO,NO,N/A,Positive,Informed about required FIR documents,customer-ended-call
+idemp_test_999,2026-11-21T03:00:00Z,Unverified Caller,N/A,verified,N/A,NO,NO,NO,N/A,Neutral,,unknown
+test_happy_path_001,2026-11-21T06:00:00Z,Aarav Sharma,N/A,verified,Documents Needed,NO,NO,NO,N/A,Neutral,Caller: Aarav Sharma. Auth: verified. Claim CLM-90210 status 'Documents Needed' communicated.,unknown
+01a1fbe0-df59-7001-bf1e-3fb9b323557c,2026-11-21T02:13:34.824609+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
+01a1fbf2-e1b1-7113-92f5-85f06c1a11f0,2026-11-21T02:33:14.386677+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
+01a1fbf6-8e94-7113-9309-97cf34632805,2026-11-21T02:37:15.470326+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
+01a1fbfc-aa1a-7001-8bc2-afe1a8c10cce,2026-11-21T02:43:55.699159+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
+01a1fbfd-88dc-7000-b537-28674b4437b9,2026-11-21T02:44:52.742118+00:00,Aarav Sharma,3210,identified,N/A,NO,NO,NO,N/A,Neutral,Caller: Aarav Sharma. Auth: identified. Call completed.,customer-ended-call
+01a1fc08-42dc-7001-95fb-84cc23bab757,2026-11-21T02:56:35.487788+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
+01a1fc0a-eb36-7001-964a-a86c27217db9,2026-11-21T02:59:29.831573+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
+01a1fc0c-68a9-7eeb-b4a0-ee600b57eb18,2026-11-21T03:01:07.572695+00:00,Aarav Sharma,3210,identified,N/A,NO,NO,NO,N/A,Neutral,Caller: Aarav Sharma. Auth: identified. Call completed.,customer-ended-call
+01a1fc14-c7a1-7cc2-93bc-ed0bfec3d343,2026-11-21T03:10:16.101164+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
+01a1fc16-a661-7113-9473-37f3e9978c00,2026-11-21T03:12:18.648020+00:00,Aarav Sharma,3210,identified,N/A,NO,NO,NO,N/A,Neutral,Caller: Aarav Sharma. Auth: identified. Call completed.,customer-ended-call
+01a1fc24-d496-7441-a84a-e9ef0ddf2b07,2026-11-21T03:27:47.974644+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
+01a1fc26-cc0a-7441-a88d-36e0a647e9f2,2026-11-21T03:29:58.883229+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Caller: Unverified. Auth: not_started. Call completed.,customer-ended-call
+01a1fc2a-3240-7995-9ff6-cc6141bd79a6,2026-11-21T03:33:39.569021+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
+01a1fc30-ffe0-733e-98a3-3ab6d78bbf89,2026-11-21T03:41:05.509527+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
+01a1fc38-5994-7001-981b-348d4b73e9ae,2026-11-21T03:49:07.373703+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Caller: Unverified. Auth: not_started. Call completed.,customer-ended-call
+01a1fc40-39b0-7001-8fd7-ce90f2ad1f6e,2026-11-21T03:57:43.316884+00:00,Aarav Sharma,3210,identified,N/A,NO,NO,NO,N/A,Neutral,Caller: Aarav Sharma. Auth: identified. Call completed.,customer-ended-call
+01a1fc44-b92f-7eeb-b7a2-2c07f1f0f844,2026-11-21T04:02:38.092777+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
+01a1fc56-1cf7-7001-b389-ac53aa79bd50,2026-11-21T04:21:37.447516+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
+01a1fde9-554e-7002-9428-287bf79ef909,2026-11-21T11:42:03.268862+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
+01a1fdeb-7afd-7001-bc6f-df2b661f0e0d,2026-11-21T11:44:23.840789+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
+01a1fdec-d9cc-7000-85c5-3527e1f2cf2a,2026-11-21T11:45:53.923881+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
+01a1fdf6-8571-7338-ad93-e550e3a9b9f4,2026-11-21T11:59:26.973218+00:00,Aarav Sharma,3210,verified,Documents Needed,YES,YES,NO,N/A,Neutral,Caller: Aarav Sharma. Auth: verified. CRITICAL: Active emergency reported; caller directed to 112.,customer-ended-call

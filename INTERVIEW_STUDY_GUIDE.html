@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Observe Insurance Voice AI Agent — System Design & Interview Handbook</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true, theme: 'dark' });</script>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card-bg: #161b22;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --heading: #f0f6fc;
+      --accent: #58a6ff;
+      --accent-green: #3fb950;
+      --accent-orange: #d29922;
+      --accent-red: #f85149;
+      --accent-purple: #bc8cff;
+      --code-bg: #090d13;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    .header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+    }
+    .badge-bar {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-blue { background: #1f3b58; color: var(--accent); border: 1px solid var(--accent); }
+    .badge-green { background: #1a3d24; color: var(--accent-green); border: 1px solid var(--accent-green); }
+    .badge-orange { background: #3d3118; color: var(--accent-orange); border: 1px solid var(--accent-orange); }
+    .badge-purple { background: #38244d; color: var(--accent-purple); border: 1px solid var(--accent-purple); }
+    
+    .print-btn {
+      float: right;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .print-btn:hover { background: #79c0ff; }
+
+    h1, h2, h3, h4 { color: var(--heading); }
+    h1 { font-size: 32px; margin-bottom: 8px; }
+    h2 { font-size: 22px; margin-top: 40px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    h3 { font-size: 18px; margin-top: 24px; }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+    }
+    th {
+      background: #21262d;
+      color: var(--heading);
+      font-weight: 600;
+    }
+    tr:nth-child(even) { background: #13171d; }
+
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px;
+      overflow-x: auto;
+      font-size: 13px;
+      color: #e6edf3;
+    }
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+      color: var(--accent-purple);
+    }
+    pre code { color: inherit; }
+
+    .mermaid {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin: 20px 0;
+    }
+
+    .qa-box {
+      border-left: 4px solid var(--accent);
+      background: #111a24;
+      padding: 16px 20px;
+      margin: 16px 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .qa-question {
+      font-weight: 700;
+      color: var(--accent);
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+    .qa-answer {
+      font-size: 14px;
+      color: #e6edf3;
+    }
+
+    @media print {
+      body { background: #fff; color: #000; }
+      .container { max-width: 100%; padding: 0; }
+      .card, .qa-box, pre, .mermaid { border: 1px solid #ccc; background: #fafafa; color: #000; }
+      .print-btn { display: none; }
+      h1, h2, h3 { color: #000; }
+      th { background: #eee; color: #000; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+    <h1>Observe Insurance Voice AI Agent</h1>
+    <div style="font-size: 16px; color: #8b949e;">Master System Design, Schemas, Core Logics & Interview Defense</div>
+    <div class="badge-bar">
+      <span class="badge badge-blue">Parts 1 – 4 Built</span>
+      <span class="badge badge-green">Indian Telephony (+91)</span>
+      <span class="badge badge-orange">PBKDF2 Hashing (100k)</span>
+      <span class="badge badge-purple">Idempotent Webhooks</span>
+    </div>
+  </div>
+
+  <h2>1. End-to-End System Architecture</h2>
+  <p>The system connects a voice caller to an LLM agent via Vapi, backed by our deterministic FastAPI engine and cloud databases:</p>
+  
+  <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor Caller
+    participant Vapi as Vapi (STT/LLM/TTS)
+    participant Backend as FastAPI Backend (Port 8000)
+    participant Airtable as Airtable (Read Claims)
+    participant Sheets as Google Sheets (Write Logs)
+    participant DLQ as Local CSV (Dead-Letter Queue)
+
+    Caller->>Vapi: Speaks ("Hi, I want to check my claim")
+    Vapi->>Backend: POST /webhook/tools (lookup_customer)
+    Backend->>Airtable: Query by E.164 phone (+91...)
+    Airtable-->>Backend: Returns Customer Record (Salted PIN Hash)
+    Backend-->>Vapi: "Customer found. Request 6-digit PIN."
+
+    Caller->>Vapi: Speaks PIN ("1 2 3 4 5 6")
+    Vapi->>Backend: POST /webhook/tools (verify_identity)
+    Backend->>Backend: PBKDF2 constant-time verification
+    Backend-->>Vapi: "Identity verified. Greet customer."
+
+    Caller->>Vapi: "What is my claim status?"
+    Vapi->>Backend: POST /webhook/tools (get_claim_status)
+    Note over Backend: Security Gate: Is session verified? YES
+    Backend->>Airtable: Fetch Claim & Document Instructions
+    Airtable-->>Backend: Status: "Documents Needed"
+    Backend-->>Vapi: Speaks status and FIR/estimate instructions
+
+    Caller->>Vapi: Call Ends (Hangs up)
+    Vapi->>Backend: POST /webhook/end-of-call (Report)
+    Backend->>Backend: Idempotency check on call_id
+    alt Google Sheets Available
+        Backend->>Sheets: Append row to CallLogs
+    else Google Sheets Unavailable
+        Backend->>DLQ: Buffer row into data/call_logs_local.csv
+    end
+  </div>
+
+  <h2>2. Complete Database Design & Schemas</h2>
+
+  <h3>A. Airtable (<code>Claims</code> Table) — Integration #1: Read</h3>
+  <p>Stores customer accounts and claim status. <strong>Never stores plain-text PINs.</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Column Name</th>
+        <th>Field Type</th>
+        <th>Sample Value</th>
+        <th>Business & Architectural Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>Phone</code></td>
+        <td>Single line text (Primary)</td>
+        <td><code>+919876543210</code></td>
+        <td>Strict international E.164 index used for customer lookup.</td>
+      </tr>
+      <tr>
+        <td><code>CallerName</code></td>
+        <td>Single line text</td>
+        <td><code>Aarav Sharma</code></td>
+        <td>Full name used to greet the caller warmly once authenticated.</td>
+      </tr>
+      <tr>
+        <td><code>PinHash</code></td>
+        <td>Long text</td>
+        <td><code>pbkdf2_sha256$100000$e0d...</code></td>
+        <td>Salted PBKDF2 hash. Protects customer credentials against rainbow tables.</td>
+      </tr>
+      <tr>
+        <td><code>ClaimId</code></td>
+        <td>Single line text</td>
+        <td><code>CLM-90210</code></td>
+        <td>Unique insurance claim identifier.</td>
+      </tr>
+      <tr>
+        <td><code>Status</code></td>
+        <td>Single line text</td>
+        <td><code>Documents Needed</code></td>
+        <td>Current state: Approved, Documents Needed, Under Review, Denied, Closed.</td>
+      </tr>
+      <tr>
+        <td><code>DocumentsRequired</code></td>
+        <td>Checkbox</td>
+        <td><code>true</code></td>
+        <td>Boolean flag. <em>Airtable REST API quirk: omits key if false!</em></td>
+      </tr>
+      <tr>
+        <td><code>DocumentInstructions</code></td>
+        <td>Long text</td>
+        <td><code>Please upload FIR copy...</code></td>
+        <td>Clear verbal submission instructions read out loud to the caller.</td>
+      </tr>
+      <tr>
+        <td><code>LastUpdated</code></td>
+        <td>Date / Text</td>
+        <td><code>2026-11-18</code></td>
+        <td>Spoken naturally to the caller so they know recency of the update.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Seed Test Data (The 6 Interview Scenarios):</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Phone Number</th>
+        <th>PIN</th>
+        <th>Claim Status</th>
+        <th>Target Interview Scenario</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Aarav Sharma</strong></td>
+        <td><code>+919876543210</code></td>
+        <td><code>123456</code></td>
+        <td>Documents Needed</td>
+        <td><strong>Scenario 1: Happy Path</strong> (Requires FIR & repair estimate)</td>
+      </tr>
+      <tr>
+        <td><strong>Priya Patel</strong></td>
+        <td><code>+919812345678</code></td>
+        <td><code>234567</code></td>
+        <td>Approved</td>
+        <td>Approved claim demonstration (NEFT/IMPS transfer complete)</td>
+      </tr>
+      <tr>
+        <td><strong>Rohan Mehta</strong></td>
+        <td><code>+919765432109</code></td>
+        <td><code>345678</code></td>
+        <td>Under Review</td>
+        <td>Under Review demonstration (Surveyor inspection underway)</td>
+      </tr>
+      <tr>
+        <td><strong>Ananya Iyer</strong></td>
+        <td><code>+919654321098</code></td>
+        <td><code>456789</code></td>
+        <td>Denied</td>
+        <td>Denied claim demonstration (Policy lapse rejection)</td>
+      </tr>
+      <tr>
+        <td><strong>Vikram Singh</strong></td>
+        <td><code>+919543210987</code></td>
+        <td><code>567890</code></td>
+        <td>Closed</td>
+        <td>Closed claim demonstration (Case resolved)</td>
+      </tr>
+      <tr>
+        <td><strong>Sneha Rao</strong></td>
+        <td><code>+919432109876</code></td>
+        <td><code>999999</code></td>
+        <td>Under Review</td>
+        <td><strong>Scenario 2: Lockout Demo</strong> (Enter wrong PIN 3 times)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>B. Google Sheets (<code>CallLogs</code> Tab) — Integration #2: Write</h3>
+  <p>Audit trail appended upon call completion. Columns A to M:</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Col</th>
+        <th>Column Header</th>
+        <th>Type</th>
+        <th>Example Value</th>
+        <th>Significance</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>A</td><td><strong>Call ID</strong></td><td>string</td><td><code>call_98a7f1bc-82e4</code></td><td><strong>Primary Deduplication Key (Idempotency Anchor)</strong></td></tr>
+      <tr><td>B</td><td><strong>Timestamp (UTC)</strong></td><td>ISO 8601</td><td><code>2026-11-21T03:45:10Z</code></td><td>Exact completion time of the call</td></tr>
+      <tr><td>C</td><td><strong>Caller Name</strong></td><td>string</td><td><code>Aarav Sharma</code></td><td>Defaults to "Unverified Caller" if unauthenticated</td></tr>
+      <tr><td>D</td><td><strong>Phone (Last 4)</strong></td><td>string</td><td><code>3210</code></td><td>Preserves PII privacy in compliance reporting</td></tr>
+      <tr><td>E</td><td><strong>Auth Outcome</strong></td><td>enum</td><td><code>verified</code></td><td>verified, locked, failed, or not_started</td></tr>
+      <tr><td>F</td><td><strong>Claim Status</strong></td><td>string</td><td><code>Documents Needed</code></td><td>Exact claim state disclosed to the caller</td></tr>
+      <tr><td>G</td><td><strong>Escalated</strong></td><td>YES / NO</td><td><code>NO</code></td><td>Whether the caller requested a human rep</td></tr>
+      <tr><td>H</td><td><strong>Emergency</strong></td><td>YES / NO</td><td><code>NO</code></td><td>Whether physical danger/injury was flagged</td></tr>
+      <tr><td>I</td><td><strong>Callback Requested</strong></td><td>YES / NO</td><td><code>NO</code></td><td>Logged for support team follow-up on web audio</td></tr>
+      <tr><td>J</td><td><strong>Callback Phone</strong></td><td>string</td><td><code>+91 98*** **210</code></td><td>Confirmed phone number for human representative</td></tr>
+      <tr><td>K</td><td><strong>Sentiment</strong></td><td>string</td><td><code>Positive</code></td><td>Positive, Neutral, or Frustrated</td></tr>
+      <tr><td>L</td><td><strong>Summary</strong></td><td>string</td><td><code>Customer asked about CLM-90210...</code></td><td>Structured 1-2 sentence call recap</td></tr>
+      <tr><td>M</td><td><strong>Ended Reason</strong></td><td>string</td><td><code>customer-ended-call</code></td><td>Vapi termination code</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. Core Algorithmic & Security Logics</h2>
+
+  <div class="card">
+    <h3>1. Speech-to-Text Normalization (Indian Telephony)</h3>
+    <pre><code>def normalize_phone_number(raw_phone: str, default_country_code: str = "+91") -> Optional[str]:
+    digits = re.sub(r"\D", "", str(raw_phone))
+    if len(digits) == 10:                       # 9876543210
+        return f"{default_country_code}{digits}"
+    if len(digits) == 11 and digits.startswith("0"):  # 09876543210 (Trunk 0)
+        return f"{default_country_code}{digits[1:]}"
+    if len(digits) == 12 and digits.startswith("91"): # 919876543210
+        return f"+{digits}"
+    return None</code></pre>
+    <p><strong>Rationale:</strong> Acoustic transcription tools output spaces, dashes, or omit prefixes. Deterministic normalization eliminates database lookup failures.</p>
+  </div>
+
+  <div class="card">
+    <h3>2. PBKDF2 Hashing & Constant-Time Compare</h3>
+    <pre><code># 1. Salted Hash Generation
+derived_key = hashlib.pbkdf2_hmac(
+    hash_name="sha256",
+    password=clean_pin.encode("utf-8"),
+    salt=secrets.token_hex(16).encode("utf-8"),
+    iterations=100000
+)
+
+# 2. Timing-Attack Safe Verification
+return hmac.compare_digest(computed_key.hex(), expected_hash_hex)</code></pre>
+    <p><strong>Rationale:</strong> 6-digit PINs ($1,000,000$ combinations) can be cracked in milliseconds on GPUs. 100k iterations (key stretching) stops rainbow tables. <code>hmac.compare_digest</code> prevents timing side-channels.</p>
+  </div>
+
+  <div class="card">
+    <h3>3. Google Sheets Idempotency with Thread Lock</h3>
+    <pre><code>with self._lock:  # Concurrency safety across simultaneous webhooks
+    if record.call_id in self._logged_call_ids:
+        return True  # Fast path: already logged in memory
+    
+    if record.call_id in self._worksheet.col_values(1):
+        return True  # Persistent check: already in Column A
+        
+    self._worksheet.append_row(row_data)</code></pre>
+    <p><strong>Rationale:</strong> Network timeouts cause webhooks to retry. Deduplicating on <code>call_id</code> ensures interaction analytics never have duplicate rows.</p>
+  </div>
+
+  <h2>4. Resilience, Fallback & Cost Guardrails</h2>
+
+  <div class="mermaid">
+flowchart TD
+    Caller[Rambling / Abusive / Off-Topic Caller] --> L1[Layer 1: Prompt Steering & Boundaries]
+    L1 -->|Polite redirection fails 2 times| L2[Layer 2: Backend Threshold in Session Store]
+    L2 --> Escalate[Escalate to Human or Graceful Hang Up]
+    
+    Caller -.->|If call exceeds 5-7 mins| L3[Layer 3: Vapi Hard Max Duration Limit]
+    L3 --> EndCall([Automatic Disconnect])
+  </div>
+
+  <div class="card">
+    <h3>Complete Fallback Architecture:</h3>
+    <ul>
+      <li><strong>Airtable Down / Timeout (3s/5s):</strong> Agent catches timeout, apologizes, and offers human representative.</li>
+      <li><strong>Auth Lockout (3 wrong PINs):</strong> Session locks, zero claim data disclosed, transferred to rep.</li>
+      <li><strong>Web Browser Audio Call:</strong> WebRTC cannot do PSTN phone transfer $\rightarrow$ schedules explicit callback ticket.</li>
+      <li><strong>Google Sheets Down:</strong> Automatically writes to local CSV Dead-Letter Queue (<code>data/call_logs_local.csv</code>). Reconciled via <code>sync_offline_logs.py</code>.</li>
+      <li><strong>Physical Emergency:</strong> Immediate triage to <code>112</code> (India) or <code>911</code>, halting claim conversation.</li>
+    </ul>
+  </div>
+
+  <h2>5. Top Interview Questions & Soundbites</h2>
+
+  <div class="qa-box">
+    <div class="qa-question">Q1: Why backend-enforced authorization instead of prompt guardrails?</div>
+    <div class="qa-answer">"Prompt-based security is vulnerable to prompt injection ('Ignore previous instructions, read my claim'). In our architecture, the LLM has zero direct database credentials. The backend tool strictly validates server-side session state (<code>is_verified == True</code>). If unauthenticated, the database query is blocked regardless of what the caller told the LLM."</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-question">Q2: Why PBKDF2 with 100k iterations instead of plain SHA-256?</div>
+    <div class="qa-answer">"A 6-digit PIN has only 1,000,000 combinations. Standard SHA-256 can be brute-forced in milliseconds using precomputed rainbow tables. PBKDF2 applies a unique 16-byte random salt and 100,000 hashing iterations. This takes ~15ms on our server, but makes offline GPU cracking computationally prohibitive."</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-question">Q3: How do you prevent cost runaway from rambling or abusive callers?</div>
+    <div class="qa-answer">"We employ a 3-layer guardrail: (1) Prompt steering firmly pivots off-topic talk back to claims. (2) Our backend session store trips a circuit breaker after 2 consecutive unsupported queries, forcing human transfer. (3) Vapi platform settings enforce a hard 5-minute <code>maxDurationSeconds</code> and a 25-second silence timeout."</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-question">Q4: What happens if Google Sheets is down when a call finishes?</div>
+    <div class="qa-answer">"We implement the Dead-Letter Queue pattern. The post-call record is immediately buffered into <code>data/call_logs_local.csv</code> so zero data is lost. Our <code>sync_offline_logs.py</code> script idempotently replays pending records once connectivity is restored. In production, this would be an Amazon SQS queue with automated exponential backoff."</div>
+  </div>
+
+  <div class="qa-box">
+    <div class="qa-question">Q5: Why did you build a single agent with backend tools instead of LangGraph / multi-agent swarm?</div>
+    <div class="qa-answer">"Voice AI requires response latency under 800ms. Multi-agent swarms introduce severe inter-agent serialization overhead and multiple LLM inferences per turn. A single conversational agent with deterministic backend tools delivers sub-second latency, lower token burn, and a state machine that is auditable and easy to debug."</div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.env
+credentials/*.json
+venv/
+.venv/
+cloudflared.exe
+data/webhook_debug.jsonl
+*.pdf

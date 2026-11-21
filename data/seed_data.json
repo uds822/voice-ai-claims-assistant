@@ -1,0 +1,62 @@
+[
+  {
+    "Phone": "+919876543210",
+    "CallerName": "Aarav Sharma",
+    "Pin": "123456",
+    "ClaimId": "CLM-90210",
+    "Status": "Documents Needed",
+    "DocumentsRequired": true,
+    "DocumentInstructions": "Please upload a clear copy of your police incident FIR and vehicle repair estimate to your online portal or email them to claims@observeinsurance.in.",
+    "LastUpdated": "2026-11-18"
+  },
+  {
+    "Phone": "+919812345678",
+    "CallerName": "Priya Patel",
+    "Pin": "234567",
+    "ClaimId": "CLM-88102",
+    "Status": "Approved",
+    "DocumentsRequired": false,
+    "DocumentInstructions": "No additional documents needed. Settlement amount was transferred via NEFT/IMPS on November 15.",
+    "LastUpdated": "2026-11-15"
+  },
+  {
+    "Phone": "+919765432109",
+    "CallerName": "Rohan Mehta",
+    "Pin": "345678",
+    "ClaimId": "CLM-77341",
+    "Status": "Under Review",
+    "DocumentsRequired": false,
+    "DocumentInstructions": "All initial documents received. Senior surveyor inspection is currently underway.",
+    "LastUpdated": "2026-11-19"
+  },
+  {
+    "Phone": "+919654321098",
+    "CallerName": "Ananya Iyer",
+    "Pin": "456789",
+    "ClaimId": "CLM-66219",
+    "Status": "Denied",
+    "DocumentsRequired": false,
+    "DocumentInstructions": "Claim was denied due to policy lapse prior to the incident date. A formal rejection letter has been sent to your registered email.",
+    "LastUpdated": "2026-11-10"
+  },
+  {
+    "Phone": "+919543210987",
+    "CallerName": "Vikram Singh",
+    "Pin": "567890",
+    "ClaimId": "CLM-55104",
+    "Status": "Closed",
+    "DocumentsRequired": false,
+    "DocumentInstructions": "This claim has been settled and closed. No further action is pending.",
+    "LastUpdated": "2026-11-01"
+  },
+  {
+    "Phone": "+919432109876",
+    "CallerName": "Sneha Rao",
+    "Pin": "999999",
+    "ClaimId": "CLM-44019",
+    "Status": "Under Review",
+    "DocumentsRequired": true,
+    "DocumentInstructions": "Medical discharge summary and pharmacy bills needed.",
+    "LastUpdated": "2026-11-17"
+  }
+]
