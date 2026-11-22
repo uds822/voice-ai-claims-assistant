@@ -210,12 +210,12 @@ async def vapi_webhook(
         # Integration #2: Write to Airtable CallLogs table
         airtable_success = airtable_service.log_call(post_call_record)
 
-        # Dual Logging: Also write to Google Sheets / Local CSV Dead-Letter Queue
+        # Backup Logging: Also write to Local CSV Dead-Letter Queue (or optional Sheets)
         sheets_success = sheets_service.log_call(post_call_record)
         logger.info(
             f"[{call_id}] Post-call audit logging status: "
             f"Airtable={'SUCCESS' if airtable_success else 'SKIPPED/UNCONFIGURED'}, "
-            f"Sheets/CSV={'SUCCESS' if sheets_success else 'FAILED'}"
+            f"Backup_DLQ={'SUCCESS' if sheets_success else 'FAILED'}"
         )
 
         return {"status": "recorded", "call_id": call_id}

@@ -14,7 +14,7 @@ flowchart LR
     Vapi <-->|HTTPS Webhook| FastAPI[FastAPI Backend\nDeterministic Logic & Security Gates]
     FastAPI <-->|Integration #1: Read| AirtableClaims[(Airtable Claims DB\nCustomer & Claim Lookup)]
     FastAPI -->|Integration #2: Write| AirtableLogs[(Airtable CallLogs DB\nPost-Call Interaction Log)]
-    FastAPI -.->|Backup DLQ| AuditLog[Local CSV / Google Sheets]
+    FastAPI -.->|Backup DLQ| AuditLog[Local CSV Dead-Letter Queue]
 ```
 
 ### Core Capabilities:
@@ -166,7 +166,7 @@ For deep architectural details, state machines, and complete interview defense q
 │   ├── services/
 │   │   ├── airtable_service.py  # Airtable integration (Claims read + CallLogs write)
 │   │   ├── faq_service.py       # Deterministic corporate FAQ knowledge base
-│   │   └── sheets_service.py    # Backup audit logger (Google Sheets + CSV fallback)
+│   │   └── sheets_service.py    # Backup audit logger (Local CSV DLQ fallback)
 │   ├── tools/
 │   │   └── dispatcher.py        # Central tool router with security gatekeeping
 │   └── utils/

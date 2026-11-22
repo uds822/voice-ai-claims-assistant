@@ -44,8 +44,8 @@ class CustomerClaimData(BaseModel):
 
 class PostCallRecord(BaseModel):
     """
-    Data structure written to Google Sheets at the end of every call.
-    Matches the columns planned for the 'CallLogs' sheet.
+    Data structure written to Airtable CallLogs table (and backup CSV DLQ) at the end of every call.
+    Matches the fields in the 'CallLogs' table.
     """
     call_id: str
     timestamp_utc: str

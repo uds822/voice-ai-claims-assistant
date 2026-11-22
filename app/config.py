@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     AIRTABLE_TABLE_NAME: str = "Claims"
     AIRTABLE_LOGS_TABLE_NAME: str = "CallLogs"
     
-    # --- Integration #2: Google Sheets (Post-Call Logs) ---
+    # --- Optional Backup: Google Sheets (Post-Call Logs) ---
     GOOGLE_SERVICE_ACCOUNT_JSON_PATH: Optional[str] = "credentials/google_service_account.json"
     GOOGLE_SHEET_NAME: str = "Observe_Insurance_Call_Logs"
     GOOGLE_SHEET_TAB_NAME: str = "CallLogs"
