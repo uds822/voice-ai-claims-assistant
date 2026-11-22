@@ -211,11 +211,15 @@ class AirtableService:
         if not self._logs_table or not record or not record.call_id:
             return False
         try:
+            phone_last_4 = None
+            if record.phone_last_four and str(record.phone_last_four).strip().isdigit():
+                phone_last_4 = int(str(record.phone_last_four).strip())
+
             fields = {
                 "CallId": str(record.call_id),
                 "Timestamp": record.timestamp_utc or "",
                 "CallerName": str(record.caller_name or "Unverified Caller"),
-                "PhoneLast4": str(record.phone_last_four or "N/A"),
+                "PhoneLast4": phone_last_4,
                 "AuthOutcome": str(record.auth_outcome or "not_started"),
                 "ClaimStatus": str(record.claim_status_read or "N/A"),
                 "Escalated": "YES" if record.escalated else "NO",
