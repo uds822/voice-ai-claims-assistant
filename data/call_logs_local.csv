@@ -34,3 +34,4 @@ test_happy_path_001,2026-11-21T06:00:00Z,Aarav Sharma,N/A,verified,Documents Nee
 01a1fea2-aece-7002-aab3-05650aedb754,2026-11-21T15:04:30.125964+00:00,Unverified Caller,N/A,not_started,N/A,NO,NO,NO,N/A,Neutral,Call completed without recorded session.,customer-ended-call
 01a1fea9-8817-7000-9b8a-1d958b46092a,2026-11-21T15:14:33.892821+00:00,Sneha Rao,9876,locked,N/A,YES,NO,NO,N/A,Neutral,Caller: Sneha Rao. Auth: locked. Escalated: Transferred to human support.,customer-ended-call
 01a1feac-bda9-733f-9392-e1b17dda7d0d,2026-11-21T15:18:29.577808+00:00,Unverified Caller,N/A,not_started,N/A,YES,NO,NO,N/A,Neutral,Caller: Unverified. Auth: not_started. Escalated: Transferred to human support.,customer-ended-call
+01a203be-5d84-7003-86cb-27af40cdd12c,2026-11-22T14:54:05.626085+00:00,Aarav Sharma,3210,verified,Documents Needed,NO,NO,NO,N/A,Neutral,Caller: Aarav Sharma. Auth: verified. Claim CLM-90210 status 'Documents Needed' communicated.,customer-ended-call
