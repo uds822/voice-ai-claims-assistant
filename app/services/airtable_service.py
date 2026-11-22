@@ -11,7 +11,7 @@ from typing import Optional
 import requests
 from pyairtable import Api
 from app.config import get_settings
-from app.models.claims_models import CustomerRecord, ClaimRecord, CustomerClaimData
+from app.models.claims_models import CustomerRecord, ClaimRecord, CustomerClaimData, PostCallRecord
 from app.utils.normalizers import normalize_phone_number
 from app.utils.security import mask_phone_number, hash_pin
 
@@ -22,6 +22,7 @@ class AirtableService:
     def __init__(self):
         self.settings = get_settings()
         self._table = None
+        self._logs_table = None
         self._cache = {}
 
         # 0. Pre-load local seed data into RAM cache so lookups are 0.001s (Instant voice response)
@@ -36,9 +37,14 @@ class AirtableService:
                     self.settings.AIRTABLE_BASE_ID,
                     self.settings.AIRTABLE_TABLE_NAME
                 )
+                self._logs_table = api.table(
+                    self.settings.AIRTABLE_BASE_ID,
+                    self.settings.AIRTABLE_LOGS_TABLE_NAME
+                )
             except Exception as e:
                 logger.error("Failed to initialize Airtable client. Check API credentials.")
                 self._table = None
+                self._logs_table = None
 
     def _warm_cache(self):
         """Pre-populates in-memory cache with demo seed records for instant <5ms lookups."""
@@ -199,6 +205,33 @@ class AirtableService:
                 return CustomerClaimData(customer=customer, claim=claim)
 
         return None
+
+    def log_call(self, record: PostCallRecord) -> bool:
+        """Integration #2: Appends a post-call interaction record to Airtable CallLogs table."""
+        if not self._logs_table or not record or not record.call_id:
+            return False
+        try:
+            fields = {
+                "CallId": str(record.call_id),
+                "Timestamp": record.timestamp_utc or "",
+                "CallerName": str(record.caller_name or "Unverified Caller"),
+                "PhoneLast4": str(record.phone_last_four or "N/A"),
+                "AuthOutcome": str(record.auth_outcome or "not_started"),
+                "ClaimStatus": str(record.claim_status_read or "N/A"),
+                "Escalated": "YES" if record.escalated else "NO",
+                "Emergency": "YES" if record.emergency else "NO",
+                "CallbackRequested": "YES" if record.callback_requested else "NO",
+                "CallbackPhone": str(record.callback_phone or "N/A"),
+                "Sentiment": str(record.sentiment or "Neutral"),
+                "Summary": str(record.call_summary or ""),
+                "EndedReason": str(record.ended_reason or "unknown")
+            }
+            self._logs_table.create(fields)
+            logger.info(f"[{record.call_id}] Successfully recorded post-call log in Airtable CallLogs table.")
+            return True
+        except Exception as e:
+            logger.warning(f"[{record.call_id}] Could not write call log to Airtable: {e}")
+            return False
 
 
 airtable_service = AirtableService()

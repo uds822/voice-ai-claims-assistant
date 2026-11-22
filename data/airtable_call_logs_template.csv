@@ -1,0 +1,2 @@
+CallId,Timestamp,CallerName,PhoneLast4,AuthOutcome,ClaimStatus,Escalated,Emergency,CallbackRequested,CallbackPhone,Sentiment,Summary,EndedReason
+sample_call_001,2026-11-22T12:00:00Z,Aarav Sharma,3210,verified,Documents Needed,NO,NO,NO,N/A,Positive,Caller verified identity. Status Documents Needed read out.,customer-ended-call

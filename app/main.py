@@ -23,6 +23,7 @@ from app.models.vapi_models import (
     VapiToolResultItem,
     VapiWebhookRequest,
 )
+from app.services.airtable_service import airtable_service
 from app.services.sheets_service import sheets_service
 from app.session_store import session_store
 from app.tools.dispatcher import tool_dispatcher
@@ -213,9 +214,16 @@ async def vapi_webhook(
             ended_reason=ended_reason
         )
 
-        # Write to Google Sheets (or local CSV fallback)
-        success = sheets_service.log_call(post_call_record)
-        logger.info(f"[{call_id}] Post-call audit logging status: {'SUCCESS' if success else 'FAILED'}")
+        # Integration #2: Write to Airtable CallLogs table
+        airtable_success = airtable_service.log_call(post_call_record)
+
+        # Dual Logging: Also write to Google Sheets / Local CSV Dead-Letter Queue
+        sheets_success = sheets_service.log_call(post_call_record)
+        logger.info(
+            f"[{call_id}] Post-call audit logging status: "
+            f"Airtable={'SUCCESS' if airtable_success else 'SKIPPED/UNCONFIGURED'}, "
+            f"Sheets/CSV={'SUCCESS' if sheets_success else 'FAILED'}"
+        )
 
         return {"status": "recorded", "call_id": call_id}
 

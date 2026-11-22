@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     AIRTABLE_API_KEY: Optional[str] = None
     AIRTABLE_BASE_ID: Optional[str] = None
     AIRTABLE_TABLE_NAME: str = "Claims"
+    AIRTABLE_LOGS_TABLE_NAME: str = "CallLogs"
     
     # --- Integration #2: Google Sheets (Post-Call Logs) ---
     GOOGLE_SERVICE_ACCOUNT_JSON_PATH: Optional[str] = "credentials/google_service_account.json"
