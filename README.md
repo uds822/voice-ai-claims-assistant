@@ -131,6 +131,17 @@ Completed calls are logged into [`data/call_logs_local.csv`](data/call_logs_loca
 
 ---
 
+## 🏗️ Production Architecture & Scalability (10,000 Concurrent Calls)
+
+To scale from this prototype to high-throughput enterprise production:
+
+1. **Stateless Compute with Redis Sessions:** Move from in-memory session dictionaries to a distributed **Redis Cluster** (15-min TTL) behind an AWS Application Load Balancer. Any FastAPI worker can seamlessly handle any active call's webhook turns.
+2. **Asynchronous Audit Queue (Amazon SQS / Kafka):** Offload post-call reporting to an asynchronous SQS queue to decouple slow third-party analytics/Sheets writes from real-time webhook threads.
+3. **Database Read Replicas & Connection Pooling:** Replace Airtable with a managed **PostgreSQL read-replica pool (PgBouncer)** for sub-5ms customer queries.
+4. **Dedicated SIP Trunking:** Terminate voice traffic via carrier-grade SIP trunks (Twilio/Telnyx) with TLS/SRTP encryption to support live telephonic warm/cold transfers.
+
+---
+
 ## 📚 Comprehensive System Design & Interview Preparation
 
 For deep architectural details, state machines, and complete interview defense questions required by the Observe.AI assessment, consult:

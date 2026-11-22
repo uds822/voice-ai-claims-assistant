@@ -456,7 +456,43 @@ flowchart TD
     </table>
   </div>
 
-  <h2>5. Top Interview Questions & Soundbites</h2>
+  <h2>5. Production Architecture &amp; Scalability Considerations</h2>
+  <p>To scale from this assessment prototype to <strong>10,000 concurrent enterprise voice calls</strong>:</p>
+
+  <div class="mermaid">
+flowchart TD
+    PSTN[Inbound PSTN Calls\nTwilio / Vonage / SIP Trunk] --> Gateway[Voice Gateway / SBC]
+    Gateway --> VapiCluster[Vapi Voice Cluster]
+    VapiCluster -->|HTTPS Load Balancing| ALB[AWS Application Load Balancer]
+    
+    subgraph FastAPI Compute Cluster
+        ALB --> API1[FastAPI Node 1]
+        ALB --> API2[FastAPI Node 2]
+        ALB --> API3[FastAPI Node N]
+    end
+    
+    API1 <--> Redis[(Redis Cluster: Distributed Sessions &amp; Rate Limits)]
+    API2 <--> Redis
+    API3 <--> Redis
+    
+    API1 <--> DB[(PostgreSQL Read Replicas + PgBouncer)]
+    
+    API1 --> SQS[Amazon SQS / Kafka Audit Queue]
+    SQS --> Worker[Async Ingestion Worker]
+    Worker --> DW[(Data Warehouse / BigQuery / Google Sheets)]
+  </div>
+
+  <div class="card">
+    <h3>The 4 Enterprise Scalability Pillars:</h3>
+    <ol>
+      <li><strong>Stateless Compute &amp; Distributed Sessions:</strong> Replace the in-memory <code>SessionStore</code> with a distributed <strong>Redis Cluster</strong> with a 15-minute TTL. Any FastAPI node can handle any webhook turn for any active call seamlessly.</li>
+      <li><strong>Asynchronous Audit Logging via SQS/Kafka:</strong> Synchronous Google Sheets writes block API worker threads. In production, post-call JSON payloads are offloaded to an <strong>Amazon SQS queue</strong> where async background workers batch-insert records into BigQuery/Snowflake.</li>
+      <li><strong>Database Connection Pooling:</strong> Replace Airtable REST requests with a high-throughput <strong>PostgreSQL read-replica cluster with PgBouncer</strong> for sub-5ms query performance.</li>
+      <li><strong>Enterprise Security &amp; Compliance:</strong> Terminate audio over dedicated SIP trunks with TLS/SRTP encryption, and run automated PII redaction (AWS Comprehend / Presidio) prior to transcript indexing.</li>
+    </ol>
+  </div>
+
+  <h2>6. Top Interview Questions &amp; Soundbites</h2>
 
   <div class="qa-box">
     <div class="qa-question">Q1: Why backend-enforced authorization instead of prompt guardrails?</div>
