@@ -160,7 +160,7 @@ stateDiagram-v2
 
 ---
 
-### B. Integration #2: Google Sheets / Local CSV (`CallLogs`) — Write
+### B. Integration #2: Airtable `CallLogs` Table (with Local CSV DLQ Backup) — Write
 Audit records are written at call termination (`end-of-call-report`):
 
 | Col | Header Name | Data Type | Sample Value | Purpose & Significance |

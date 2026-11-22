@@ -96,19 +96,12 @@ async def vapi_webhook(
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid JSON payload.")
 
-    # Debug: Append raw incoming payload for observability
-    try:
-        debug_log_path = os.path.join(os.path.dirname(__file__), "..", "data", "webhook_debug.jsonl")
-        with open(debug_log_path, "a", encoding="utf-8") as f:
-            f.write(json.dumps(body) + "\n")
-    except Exception:
-        pass
-
     message = body.get("message") if isinstance(body.get("message"), dict) else body
     message_type = message.get("type") or body.get("type")
     call_obj = message.get("call") or body.get("call") or {}
     call_id = call_obj.get("id") or body.get("callId") or message.get("callId") or "unknown_call"
 
+    logger.debug(f"[{call_id}] Inbound webhook payload: {body}")
     logger.info(f"[{call_id}] Received Vapi webhook event: '{message_type}'")
 
     # =========================================================================

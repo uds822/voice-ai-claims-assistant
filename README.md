@@ -12,8 +12,9 @@ Powered by **Vapi** (Conversational Voice AI orchestrator with Deepgram Nova-2 S
 flowchart LR
     Caller([Caller]) <-->|WebRTC / PSTN| Vapi[Vapi Voice Orchestrator\nDeepgram + GPT-4.1]
     Vapi <-->|HTTPS Webhook| FastAPI[FastAPI Backend\nDeterministic Logic & Security Gates]
-    FastAPI <-->|Live API / Cache| Airtable[(Airtable Claims DB)]
-    FastAPI -->|Post-Call Audit| AuditLog[Local CSV / Google Sheets]
+    FastAPI <-->|Integration #1: Read| AirtableClaims[(Airtable Claims DB\nCustomer & Claim Lookup)]
+    FastAPI -->|Integration #2: Write| AirtableLogs[(Airtable CallLogs DB\nPost-Call Interaction Log)]
+    FastAPI -.->|Backup DLQ| AuditLog[Local CSV / Google Sheets]
 ```
 
 ### Core Capabilities:
@@ -59,6 +60,7 @@ VAPI_SECRET_TOKEN=observe_takehome_secret_token_2026
 AIRTABLE_API_KEY=pat...
 AIRTABLE_BASE_ID=appGbGwgFzDYQLZa4
 AIRTABLE_TABLE_NAME=Claims
+AIRTABLE_LOGS_TABLE_NAME=CallLogs
 MAX_AUTH_ATTEMPTS=3
 ENABLE_DEMO_FALLBACK=True
 ```
@@ -162,9 +164,9 @@ For deep architectural details, state machines, and complete interview defense q
 │   │   ├── claims_models.py     # Pydantic schemas for Claims, Customer, and Audit logs
 │   │   └── vapi_models.py       # Vapi webhook event schemas
 │   ├── services/
-│   │   ├── airtable_service.py  # Airtable integration with RAM cache pre-warming
+│   │   ├── airtable_service.py  # Airtable integration (Claims read + CallLogs write)
 │   │   ├── faq_service.py       # Deterministic corporate FAQ knowledge base
-│   │   └── sheets_service.py    # Dual audit logger (Google Sheets + CSV fallback)
+│   │   └── sheets_service.py    # Backup audit logger (Google Sheets + CSV fallback)
 │   ├── tools/
 │   │   └── dispatcher.py        # Central tool router with security gatekeeping
 │   └── utils/
@@ -172,8 +174,14 @@ For deep architectural details, state machines, and complete interview defense q
 │       └── security.py          # PBKDF2 hash verification and PII masking
 ├── data/
 │   ├── seed_data.json           # 6 benchmark customer profiles with hashed PINs
-│   ├── call_logs_local.csv      # Local post-call audit storage
-│   └── webhook_debug.jsonl      # Raw event debug logs
+│   ├── faq.json                 # Standardized corporate FAQs & business hours
+│   ├── call_logs_local.csv      # Local post-call audit storage (Dead-Letter Queue)
+│   ├── airtable_seed.csv        # Benchmark Claims seed data for Airtable
+│   └── airtable_call_logs_template.csv # Schema template for Airtable CallLogs table
+├── scripts/
+│   ├── seed_airtable.py         # Automated database seeding utility
+│   ├── hash_pin.py              # CLI tool for generating PBKDF2 PIN hashes
+│   └── sync_offline_logs.py     # Idempotent Dead-Letter Queue reconciliation worker
 ├── tests/
 │   ├── test_security.py         # Tests for crypto, hashing, and PII masking
 │   ├── test_session_store.py    # Tests for 3-strike lockout and state transitions

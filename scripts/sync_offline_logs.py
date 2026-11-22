@@ -1,9 +1,10 @@
 """
-Offline Call Logs Sync Utility.
+Offline Call Logs Sync & DLQ Reconciliation Utility.
 
 Reads offline interaction records from data/call_logs_local.csv
-and idempotently uploads any missing rows to Google Sheets.
-Functions as a dead-letter queue (DLQ) reconciliation worker.
+and idempotently reconciles any unsynced rows to Airtable CallLogs
+(and Google Sheets, if service account credentials are provided).
+Functions as an enterprise Dead-Letter Queue (DLQ) reconciliation worker.
 
 Usage:
     python scripts/sync_offline_logs.py
@@ -17,12 +18,11 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from app.config import get_settings
-import gspread
+from pyairtable import Api
 
 
 def sync_offline_logs():
     settings = get_settings()
-    cred_path = settings.GOOGLE_SERVICE_ACCOUNT_JSON_PATH
     csv_path = os.path.join(os.path.dirname(__file__), "..", "data", "call_logs_local.csv")
 
     # 1. Check if local CSV log file exists
@@ -31,61 +31,94 @@ def sync_offline_logs():
         print("There are no offline records pending synchronization.\n")
         return
 
-    # 2. Check Google Service Account credentials
-    if not cred_path or not os.path.exists(cred_path):
-        print("\n[ERROR] Google Service Account JSON not found.")
-        print(f"Expected at: {cred_path}")
-        print("Cannot sync to Google Sheets without valid credentials.\n")
-        return
+    # 2. Reconcile with Airtable CallLogs (Primary Integration #2)
+    if settings.AIRTABLE_API_KEY and settings.AIRTABLE_BASE_ID:
+        print(f"\n[Airtable DLQ] Connecting to Base [{settings.AIRTABLE_BASE_ID}]...")
+        try:
+            api = Api(settings.AIRTABLE_API_KEY)
+            table = api.base(settings.AIRTABLE_BASE_ID).table(settings.AIRTABLE_LOGS_TABLE_NAME)
+            existing_records = table.all(fields=["CallId"])
+            existing_airtable_ids = {
+                r.get("fields", {}).get("CallId")
+                for r in existing_records
+                if r.get("fields", {}).get("CallId")
+            }
+            print(f"[Airtable DLQ] Found {len(existing_airtable_ids)} existing remote call records.")
 
-    print(f"\nConnecting to Google Sheet [{settings.GOOGLE_SHEET_NAME}]...")
-    try:
-        gc = gspread.service_account(filename=cred_path)
-        spreadsheet = gc.open(settings.GOOGLE_SHEET_NAME)
-        worksheet = spreadsheet.worksheet(settings.GOOGLE_SHEET_TAB_NAME)
-    except Exception as e:
-        print(f"[ERROR] Could not connect to Google Sheets: {str(e)}\n")
-        return
+            airtable_synced = 0
+            airtable_skipped = 0
 
-    # 3. Read existing Call IDs from Google Sheet (Column A) for idempotency
-    try:
-        existing_remote_call_ids = set(worksheet.col_values(1))
-    except Exception as e:
-        print(f"[ERROR] Failed to fetch remote Call IDs: {str(e)}\n")
-        return
+            with open(csv_path, "r", encoding="utf-8") as f:
+                reader = csv.reader(f)
+                header = next(reader, None)
 
-    # 4. Read rows from local CSV and push missing rows
-    synced_count = 0
-    skipped_count = 0
+                for row in reader:
+                    if not row:
+                        continue
+                    call_id = row[0].strip()
 
-    with open(csv_path, "r", encoding="utf-8") as f:
-        reader = csv.reader(f)
-        header = next(reader, None)  # Skip CSV header
+                    if call_id in existing_airtable_ids:
+                        airtable_skipped += 1
+                        continue
 
-        for row in reader:
-            if not row:
-                continue
-                
-            call_id = row[0].strip()
+                    # Parse PhoneLast4
+                    raw_phone_last4 = row[3].strip() if len(row) > 3 else None
+                    phone_last4 = int(raw_phone_last4) if (raw_phone_last4 and raw_phone_last4.isdigit()) else None
 
-            # Skip if row is already present in Google Sheets
-            if call_id in existing_remote_call_ids:
-                skipped_count += 1
-                continue
+                    fields = {
+                        "CallId": call_id,
+                        "Timestamp": row[1] if len(row) > 1 else "",
+                        "CallerName": row[2] if len(row) > 2 else "Unverified Caller",
+                        "PhoneLast4": phone_last4,
+                        "AuthOutcome": row[4] if len(row) > 4 else "not_started",
+                        "ClaimStatus": row[5] if len(row) > 5 else "N/A",
+                        "Escalated": row[6] if len(row) > 6 else "NO",
+                        "Emergency": row[7] if len(row) > 7 else "NO",
+                        "CallbackRequested": row[8] if len(row) > 8 else "NO",
+                        "CallbackPhone": row[9] if len(row) > 9 else "N/A",
+                        "Sentiment": row[10] if len(row) > 10 else "Neutral",
+                        "Summary": row[11] if len(row) > 11 else "",
+                        "EndedReason": row[12] if len(row) > 12 else "unknown"
+                    }
+                    try:
+                        table.create(fields)
+                        existing_airtable_ids.add(call_id)
+                        airtable_synced += 1
+                        print(f" [Airtable SYNCED] Call ID: {call_id} -> {fields['CallerName']} ({fields['AuthOutcome']})")
+                    except Exception as e:
+                        print(f" [Airtable FAILED] Call ID {call_id}: {e}")
 
-            # Append missing row to Google Sheets
-            try:
-                worksheet.append_row(row)
-                existing_remote_call_ids.add(call_id)
-                synced_count += 1
-                print(f" [SYNCED] Call ID: {call_id} -> {row[2]} ({row[4]})")
-            except Exception as e:
-                print(f" [FAILED] Could not sync Call ID {call_id}: {str(e)}")
+            print(f"[Airtable DLQ] Synced: {airtable_synced} | Already Present: {airtable_skipped}")
 
-    print("\n--- Synchronization Summary ---")
-    print(f" Newly Synced:      {synced_count} records")
-    print(f" Already in Sheets: {skipped_count} records")
-    print("--------------------------------\n")
+        except Exception as e:
+            print(f"[Airtable DLQ ERROR] Connection failed: {e}")
+
+    # 3. Optional: Reconcile with Google Sheets if credentials exist
+    cred_path = settings.GOOGLE_SERVICE_ACCOUNT_JSON_PATH
+    if cred_path and os.path.exists(cred_path):
+        print(f"\n[Google Sheets] Connecting to Sheet [{settings.GOOGLE_SHEET_NAME}]...")
+        try:
+            import gspread
+            gc = gspread.service_account(filename=cred_path)
+            spreadsheet = gc.open(settings.GOOGLE_SHEET_NAME)
+            worksheet = spreadsheet.worksheet(settings.GOOGLE_SHEET_TAB_NAME)
+            existing_remote_call_ids = set(worksheet.col_values(1))
+
+            sheets_synced = 0
+            with open(csv_path, "r", encoding="utf-8") as f:
+                reader = csv.reader(f)
+                header = next(reader, None)
+                for row in reader:
+                    if not row or row[0].strip() in existing_remote_call_ids:
+                        continue
+                    worksheet.append_row(row)
+                    existing_remote_call_ids.add(row[0].strip())
+                    sheets_synced += 1
+            print(f"[Google Sheets] Synced: {sheets_synced} records.")
+        except Exception as e:
+            print(f"[Google Sheets] Skipped or failed: {e}")
+
+    print("\n[SUCCESS] Dead-Letter Queue reconciliation complete.\n")
 
 
 if __name__ == "__main__":
